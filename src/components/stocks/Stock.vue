@@ -3,12 +3,12 @@
       <v-flex sm6 md4>
         <v-card  width="300" height="130">
           <v-card-title class="card-title">
-            <h3>Titre <small> (Price: PRICE )</small></h3>
+            <h3>{{stock.name}} <small> (Price: {{stock.price}} )</small></h3>
           </v-card-title>
           <v-card-text>
             <v-layout row class="pb-5"> 
-                <v-text-field placeholder="Quantity" solo type="number"></v-text-field>
-                <v-btn color="info" class="ml-2">Buy</v-btn>
+                <v-text-field placeholder="Quantity" solo type="number" v-model="quantity"></v-text-field>
+                <v-btn color="info" class="ml-2" @click="buyStock()" :disabled="quantity <= 0">Buy</v-btn>
             </v-layout>
           </v-card-text>
         </v-card>
@@ -18,7 +18,25 @@
 
 <script>
   export default {
- 
+    props: ['stock'],
+    data() {
+      return {
+        quantity: 0
+      }
+    },
+    methods: {
+      buyStock() {
+        const order = {
+          id: this.stock.id,
+          name: this.stock.name,
+          price: this.stock.price,
+          quantity: this.quantity
+        };
+        // eslint-disable-next-line
+        console.log(order)
+        this.quantity = 0;
+      }
+    },
   }
 </script>
 
