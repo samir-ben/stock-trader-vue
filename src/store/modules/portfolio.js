@@ -1,62 +1,65 @@
 const state = {
-    founds: 10000,
+    funds: 10000,
     stocks: []
 }
 
 const mutations = {
-    restFounds(state, { price, quantity }) {
-        state.founds -= price * quantity
-    },
+    'BUY_STOCK'(state, { stockId, quantity, stockPrice }) {
+        const record = state.stocks.find(element => element.id == stockId)
+        if (record) {
+            record.quantity += quantity
+        }
+        else {
+            state.stocks.push({
+                id: stockId,
+                quantity: quantity
+            });
+        }
+        state.funds -= stockPrice * quantity
 
-    sumFounds(state, { price, quantity }) {
-        state.founds += price * quantity
     },
-
-    setFounds(state, founds) {
-        state.founds = founds
+    'SELL_STOCK'(state, { stockId, quantity, stockPrice }) {
+        const record = state.stocks.find(element => element.id == stockId)
+        if (record.quantity > quantity) {
+            record.quantity -= quantity
+        }
+        else {
+            state.stocks.splice(state.stocks.indexOf(record), 1)
+        }
+        state.funds += stockPrice * quantity
     },
+    'SET_PORTFOLIO'(state, portfolio) {
+        state.funds = portfolio.funds
+        state.stocks = portfolio.stockPortfolio ? portfolio.stockPortfolio : []
+    }
+}
 
-    pushStock(state, stock) {
-        state.stocks.push(stock)
+const actions = {
+    sellStock({ commit }, order) {
+        commit('SELL_STOCK', order)
     }
 }
 
 const getters = {
-    getFounds: state => state.founds,
-    getPortfolioStocks: state => state.stocks
-}
-
-const actions = {
-    setPortfolio({ commit, rootState }, stocks) {
-        stocks.forEach(x => {
-            let stockItem = rootState.stock.stocks.find(t => t.id == x.id)
-            let portfolioStocks = state.stocks.find(t => t.id == x.id)
-            stockItem.quantity = x.quantity
-            if (!portfolioStocks) {
-                commit('pushStock', stockItem)
+    stockPortfolio(state, getters) {
+        return state.stocks.map(stock => {
+            const record = getters.stocks.find(element => element.id == stock.id)
+            return {
+                id: stock.id,
+                quantity: parseInt(stock.quantity),
+                name: record.name,
+                price: record.price
             }
         })
     },
-
-    buyStock({ commit, state }, { stock, quantity }) {
-        const item = state.stocks.find(s => s.id === stock.id)
-        stock.quantity += quantity
-        if (!item) state.stocks.push(stock)
-        commit('restFounds', { price: stock.price, quantity })
-    },
-
-    sellStock({ commit, state }, { stock, quantity }) {
-        const item = state.stocks.find(s => s.id === stock.id)
-        const index = state.stocks.indexOf(item)
-        if (stock.quantity == quantity) state.stocks.splice(index, 1)
-        stock.quantity -= quantity
-        commit('sumFounds', { price: stock.price, quantity })
+    funds(state) {
+        return state.funds
     }
-}
+};
 
 export default {
     state,
     mutations,
-    getters,
-    actions
+    actions,
+    getters
 }
