@@ -1,16 +1,17 @@
 <template>
   <v-app>
+    <Header></Header>
    <router-view></router-view>
   </v-app>
 </template>
 
 <script>
-import Home from './components/Home'
+import Header from './components/Header'
 
 export default {
   name: 'App',
   components: {
-    Home
+    Header
   },
   data () {
     return {
